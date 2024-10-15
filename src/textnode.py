@@ -1,7 +1,9 @@
+from enum import Enum
 # TextType = Enum("types", ["Normal", "Bold",
 # "Italic", "Code", "Links", "Images"])
 
-class TextType():
+
+class TextType(Enum):
     NORMAL = "normal"
     ITALIC = "italic"
     BOLD = "bold"
@@ -9,9 +11,13 @@ class TextType():
     LINKS = "links"
     IMAGE = "image"
 
+print(TextType.NORMAL)
+
 
 class TextNode():
     def __init__(self, text, text_type, url=None):
+        if not isinstance(text_type, TextType):
+            raise ValueError("type must be an instance of TextType")
         self.text = text
         self.text_type = text_type
         self.url = url
@@ -22,4 +28,4 @@ class TextNode():
         return False
 
     def __repr__(self):
-        return f"TextNode({self.text}, {self.text_type}, {self.url})"
+        return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
