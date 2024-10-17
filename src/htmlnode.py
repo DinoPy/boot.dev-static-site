@@ -30,6 +30,9 @@ class LeafNode(HTMLNode):
             raise ValueError("Value is mandatory")
         super().__init__(tag=tag, value=value, props=props)
 
+    def __repr__(self):
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
+
     def to_html(self):
         if self.tag is None:
             return self.value

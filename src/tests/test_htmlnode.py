@@ -56,7 +56,7 @@ class TestParentNode(unittest.TestCase):
         node = ParentNode("div", [LeafNode("h1", "Title")])
         node2 = ParentNode("div", [LeafNode("h1", "Title"), node])
         self.assertEqual(
-            str(node2), "HTMLNode(div, None, [HTMLNode(h1, Title, None, None), HTMLNode(div, None, [HTMLNode(h1, Title, None, None)], None)], None)")
+            str(node2), "HTMLNode(div, None, [LeafNode(h1, Title, None), HTMLNode(div, None, [LeafNode(h1, Title, None)], None)], None)")
 
     def test_parent_within_parent_to_html(self):
         node = ParentNode("div", [LeafNode("h1", "Title")])
