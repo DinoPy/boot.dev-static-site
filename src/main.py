@@ -1,9 +1,11 @@
-from textnode import TextType, TextNode
+import os
+from src.file_handler import copy_files
+from src.page_generator import generate_web
 
 
 def main():
-    node = TextNode("text", TextType.NORMAL, "url")
-    print(node)
+    copy_files()
+    generate_web()
 
 
 if __name__ == "__main__":

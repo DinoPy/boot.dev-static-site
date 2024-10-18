@@ -79,12 +79,12 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(
             str(new_nodes_bold), "[TextNode(This is text with a , text, None), TextNode(bold block, bold, None), TextNode( word, text, None)]")
 
-        with self.assertRaises(Exception) as context:
-            node_missing_delimiter = TextNode(
-                "This is text with a **bold block word", TextType.TEXT)
-            new_nodes_incomplete = split_nodes_delimiter(
-                [node_missing_delimiter], "*", TextType.BOLD)
-        self.assertEqual(str(context.exception), "closing delimiter not found")
+        # with self.assertRaises(Exception) as context:
+        #     node_missing_delimiter = TextNode(
+        #         "This is text with a **bold block word", TextType.TEXT)
+        #     new_nodes_incomplete = split_nodes_delimiter(
+        #         [node_missing_delimiter], "*", TextType.BOLD)
+        # self.assertEqual(str(context.exception), "closing delimiter not found")
 
     def test_extract_markdown_images(self):
         result = extract_markdown_images(

@@ -1,5 +1,5 @@
 from enum import Enum
-from re import findall
+from re import findall, split, escape
 from src.htmlnode import LeafNode
 # TextType = Enum("types", ["Normal", "Bold",
 # "Italic", "Code", "Links", "Images"])
@@ -32,6 +32,8 @@ class TextNode():
 
 
 def text_node_to_html_node(text_node):
+    if type(text_node) is list:
+        raise Exception("Nope")
     if not isinstance(text_node.text_type, TextType):
         raise TypeError("Text type must be of TextType_Enum type")
     match text_node.text_type:
@@ -58,15 +60,24 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 
         splits = node.text.split(delimiter)
         splits = list(filter(lambda x: len(x) > 0, splits))
-        if len(splits) == 2:
-            raise Exception("closing delimiter not found")
-        if len(splits) == 1:
+        if len(splits) >= 3:
             final_list.append(TextNode(splits[0], TextType.TEXT))
+            final_list.append(TextNode(splits[1], text_type))
+            final_list.append(TextNode(splits[2], TextType.TEXT))
             continue
 
-        final_list.append(TextNode(splits[0], TextType.TEXT))
-        final_list.append(TextNode(splits[1], text_type))
-        final_list.append(TextNode(splits[2], TextType.TEXT))
+        regex_split = split(f"({escape(delimiter)})", node.text)
+        regex_split_filtered = list(filter(lambda x: len(x) > 0, regex_split))
+        is_target = False
+        for s in regex_split_filtered:
+            if is_target:
+                final_list.append(TextNode(s, text_type))
+                is_target = not is_target
+            else:
+                if s == delimiter:
+                    is_target = not is_target
+                    continue
+                final_list.append(TextNode(s, TextType.TEXT))
     return final_list
 
 
@@ -83,7 +94,7 @@ def extract_markdown_images(text):
 
 
 def split_nodes_link_helper(text):
-    if "(" in text:
+    if "(" in text and "]" in text and ")" in text and "[" in text:
         match = extract_markdown_images(text)
         return TextNode(match[0][0], TextType.LINK, match[0][1])
     else:
@@ -156,10 +167,10 @@ def split_nodes_image(old_nodes):
 def text_to_textnodes(text):
     node = TextNode(text, TextType.TEXT)
     image_split = split_nodes_image([node])
-    link_split = split_nodes_link(image_split)
-    after_delimiter = split_nodes_delimiter(link_split, "`", TextType.CODE)
+    after_delimiter = split_nodes_delimiter(image_split, "`", TextType.CODE)
+    link_split = split_nodes_link(after_delimiter)
     after_delimiter2 = split_nodes_delimiter(
-        after_delimiter, "**", TextType.BOLD)
+        link_split, "**", TextType.BOLD)
     after_delimiter3 = split_nodes_delimiter(
         after_delimiter2, "*", TextType.ITALIC)
     return after_delimiter3

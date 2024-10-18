@@ -1,8 +1,7 @@
 from unittest import TestCase
 from src.blocks import MarkdownTypes,  markdown_to_blocks, block_to_block_type, markdown_to_html_node
 
-final_content = """
-# Tolkien Fan Club
+final_content = """# Tolkien Fan Club
 
 **I like Tolkien**. Read my [first post here](/majesty) (sorry the link doesn't work yet)
 
@@ -33,8 +32,7 @@ Here's what `elflang` looks like (the perfect coding language):
 func main(){
     fmt.Println("Hello, World!")
 }
-```
-"""
+```"""
 
 
 class TestBlocks(TestCase):
@@ -66,4 +64,3 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
 
     def test_markdown_to_html_node(self):
         result = markdown_to_html_node(final_content)
-        print(result)

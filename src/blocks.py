@@ -1,6 +1,7 @@
 from enum import Enum
 from re import match, sub
-from src.htmlnode import HTMLNode, LeafNode
+from src.htmlnode import HTMLNode, LeafNode, ParentNode
+from src.textnode import text_to_textnodes, text_node_to_html_node
 
 
 class MarkdownTypes(Enum):
@@ -37,31 +38,47 @@ def block_to_block_type(markdown_block):
 def markdown_block_to_html(markdown_block):
     match block_to_block_type(markdown_block):
         case MarkdownTypes.PARAGRAPH:
-            return HTMLNode("p", markdown_block)
+            text_nodes = text_to_textnodes(markdown_block)
+            children = []
+            for n in text_nodes:
+                children.append(text_node_to_html_node(n))
+            return ParentNode("p", children)
         case MarkdownTypes.HEADING:
             heading_level = len(match(r"^#+", markdown_block).group(0))
             stripped_block = sub(r"^#+ ", "", markdown_block)
-            return HTMLNode(f"h{heading_level}", stripped_block)
+            stripped_inner_item = text_to_textnodes(stripped_block)
+            children = []
+            for n in stripped_inner_item:
+                children.append(text_node_to_html_node(n))
+            return ParentNode(f"h{heading_level}", children)
         case MarkdownTypes.CODE:
             stripped_block = markdown_block.replace("```", "")
-            return HTMLNode("code", stripped_block)
+            return ParentNode("div", [LeafNode("code", stripped_block)])
         case MarkdownTypes.QUOTE:
             stripped_block = markdown_block.replace(">", "")
-            return HTMLNode("blockquote", stripped_block)
+            return ParentNode("div", [LeafNode("blockquote", stripped_block.strip())])
         case MarkdownTypes.ORDERED_LIST:
             list_items = markdown_block.split("\n")
             children_list = []
             for item in list_items:
-                stripped_item = sub(r"^\d+.", "", item)
-                children_list.append(LeafNode("li", stripped_item))
-            return HTMLNode("ol", children=children_list)
+                stripped_item = sub(r"^\d+.", "", item).strip()
+                stripped_inner_item = text_to_textnodes(stripped_item)
+                children = []
+                for n in stripped_inner_item:
+                    children.append(text_node_to_html_node(n))
+                children_list.append(ParentNode("li", children))
+            return ParentNode("ol", children=children_list)
         case MarkdownTypes.UNORDERED_LIST:
             list_items = markdown_block.split("\n")
             children_list = []
             for item in list_items:
                 stripped_item = item.replace("* ", "").replace("- ", "")
-                children_list.append(LeafNode("li", stripped_item))
-            return HTMLNode("ul", children=children_list)
+                stripped_inner_item = text_to_textnodes(stripped_item)
+                children = []
+                for n in stripped_inner_item:
+                    children.append(text_node_to_html_node(n))
+                children_list.append(ParentNode("li", children))
+            return ParentNode("ul", children=children_list)
 
 
 def markdown_to_html_node(markdown):
@@ -69,4 +86,4 @@ def markdown_to_html_node(markdown):
     markdown_blocks = markdown_to_blocks(markdown)
     for block in markdown_blocks:
         children.append(markdown_block_to_html(block))
-    return HTMLNode("div", children=children)
+    return ParentNode("div", children=children)
